@@ -1,0 +1,19 @@
+<head>
+    <title>{{ appName }} - {{ appDescription }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="{{ csrfToken }}" name="_csrf" />
+    <meta content="{{ csrfParamName }}" name="_csrf_param" />
+    <meta content="{{ csrfHeaderName }}" name="_csrf_header" />
+     <link rel="preload" as="image" href="/images/fondo1.jpg">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ href('/images/favicon.png') }}">
+
+    <!-- Bootstrap 5.3 CSS via WebJars -->
+    <link href="{{ href('/webjars/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Custom styles -->
+    <link href="/css/styles.css" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap Icons -->
+    <link href="{{ href('/webjars/bootstrap-icons/font/bootstrap-icons.css') }}" rel="stylesheet">
+</head>

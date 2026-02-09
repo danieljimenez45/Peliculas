@@ -1,0 +1,4 @@
+### Simple WebSocket Request
+
+WEBSOCKET ws://localhost:3000/ws/v1/peliculas
+

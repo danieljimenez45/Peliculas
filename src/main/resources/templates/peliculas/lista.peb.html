@@ -1,0 +1,31 @@
+{% extends "fragments/layout" %}
+{% import "fragments/pager" %}
+
+{% block body %}
+<div class="container" style="padding-top: 80px;">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="bi bi-film"></i> {{ message('nav.lista.peliculas') }}</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            {% if isAuthenticated %}
+            <a href="/peliculas/new" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> {{ message('nav.new.peliculas') }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            {% include "fragments/messages" %}
+        </div>
+    </div>
+
+    {% include "fragments/listaPeliculas" %}
+
+    {{ pager("peliculas", page, _context) }}
+
+    <div id="placeholder-modal"></div>
+</div>
+{% endblock %}

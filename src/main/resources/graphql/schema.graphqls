@@ -1,0 +1,161 @@
+# ==========================================================================
+# ESQUEMA GRAPHQL PARA PELÍCULAS Y ENTRADAS
+# ==========================================================================
+# Este esquema permite consultar películas con sus entradas y entradas
+# con su película. Es un ejemplo educativo de como estructurar GraphQL.
+#
+# QUE ES UN ESQUEMA GRAPHQL:
+# Un esquema GraphQL define formalmente los tipos de datos, consultas y
+# mutaciones que una API puede manejar. Es el contrato entre cliente y servidor.
+#
+# COMPONENTES CLAVE:
+# 1. Tipos (Types): Define objetos, listas, escalares (String, Int, Float, Boolean, ID)
+# 2. Consultas (Queries): Operaciones de lectura para obtener datos
+# 3. Mutaciones (Mutations): Operaciones de escritura para modificar datos
+# 4. Suscripciones (Subscriptions): Actualizaciones en tiempo real
+# 5. Relaciones: Como se conectan los diferentes tipos entre si
+#
+# NOTACIÓN BÁSICA:
+# - Los tipos se definen con 'type NombreTipo { campos }'
+# - Los campos se definen como 'nombre: Tipo'
+# - Tipos escalares: String, Int, Float, Boolean, ID
+# - Campo obligatorio: 'nombre: String!' (no puede ser nulo)
+# - Campo opcional: 'nombre: String' (puede ser nulo)
+# - Lista: '[String!]!' = lista no nula de strings no nulos
+# - Lista opcional: '[String]' = lista que puede ser nula con elementos que pueden ser nulos
+# - Comentarios de linea: # (como este)
+# - Las queries van en el tipo 'Query', las mutations en 'Mutation'
+#
+# EJEMPLO DE NOTACION:
+# peliculas: [Pelicula!]! significa:
+# - El campo se llama 'peliculas'
+# - Es una lista (corchetes [])
+# - Contiene elementos del tipo 'Pelicula'
+# - Cada elemento es obligatorio (Pelicula!)
+# - La lista en si es obligatoria (!al final)
+# ==========================================================================
+
+# --- CONSULTAS DISPONIBLES ---
+# Aqui se definen todas las operaciones de lectura que pueden hacer los clientes
+type Query {
+    # Devuelve la lista completa de todas las películas disponibles
+    peliculas: [Pelicula!]!
+
+    # Busca y devuelve una película específica por su identificador único
+    # Parámetro: id (obligatorio) - El ID de la película a buscar
+    # Retorna: Pelicula o null si no existe
+    peliculaById(id: ID!): Pelicula
+
+    # Busca y devuelve una lista de películas que coincidan con el título dado
+    # Parámetro: titulo (obligatorio) - El título de la película a buscar
+    # Retorna: Lista de películas que coincidan con el título
+    peliculasByTitulo(titulo: String!): [Pelicula!]!
+
+    # Busca y devuelve una lista de películas que coincidan con el género dado
+    # Parámetro: genero (obligatorio) - El género de la película a buscar
+    # Retorna: Lista de películas que coincidan con el género
+    peliculasByGenero(genero: String!): [Pelicula!]!
+
+    # Devuelve la lista completa de todas las entradas disponibles
+    entradas: [Entrada!]!
+
+    # Busca y devuelve una entrada específica por su identificador único
+    # Parámetro: id (obligatorio) - El ID de la entrada a buscar
+    # Retorna: Entrada o null si no existe
+    entradaById(id: ID!): Entrada
+}
+
+# --- TIPO PELÍCULA ---
+# Representa una película con todos sus atributos y relaciones
+type Pelicula {
+    id: ID!                   # Identificador único numérico autoincremental (Long en Java)
+    titulo: String!           # Título de la película
+    genero: String!           # Género de la película
+    duracion: Int!            # Duración en minutos
+    sinopsis: String          # Sinopsis de la película (opcional)
+    actoresPrincipales: String # Actores principales (opcional)
+    actoresSecundarios: String # Actores secundarios (opcional)
+    director: String!         # Director de la película
+    createdAt: String!        # Fecha y hora de creación (formato ISO 8601)
+    updatedAt: String!        # Fecha y hora de última modificación (formato ISO 8601)
+    entradas: [Entrada!]!     # Lista de todas las entradas de esta película (relación OneToMany)
+}
+
+# --- TIPO ENTRADA ---
+# Representa una entrada con sus atributos y relaciones
+type Entrada {
+    id: ID!                   # Identificador único de la entrada
+    fecha: String!            # Fecha de la entrada (formato ISO 8601)
+    precio: Float!             # Precio de la entrada
+    metodoPago: String!        # Método de pago utilizado
+    createdAt: String!         # Fecha y hora de creación (formato ISO 8601)
+    updatedAt: String!         # Fecha y hora de última modificación (formato ISO 8601)
+    pelicula: Pelicula!        # Película a la que pertenece esta entrada (relación ManyToOne)
+}
+
+# ==========================================================================
+# EJEMPLOS DE CONSULTAS PARA EL ALUMNADO:
+# ==========================================================================
+#
+# 1. OBTENER TODAS LAS PELÍCULAS CON SUS ENTRADAS:
+# query {
+#   peliculas {
+#     id
+#     titulo
+#     genero
+#     duracion
+#     director
+#     entradas {
+#       id
+#       fecha
+#       precio
+#       metodoPago
+#     }
+#   }
+# }
+#
+# 2. OBTENER UNA PELÍCULA ESPECÍFICA POR ID:
+# query {
+#   peliculaById(id: "1") {
+#     titulo
+#     genero
+#     duracion
+#     sinopsis
+#     director
+#     entradas {
+#       fecha
+#       precio
+#     }
+#   }
+# }
+#
+# 3. OBTENER PELÍCULAS POR GÉNERO:
+# query {
+#   peliculasByGenero(genero: "Acción") {
+#     titulo
+#     duracion
+#     director
+#   }
+# }
+#
+# 4. OBTENER UNA ENTRADA CON SU PELÍCULA:
+# query {
+#   entradaById(id: "1") {
+#     fecha
+#     precio
+#     metodoPago
+#     pelicula {
+#       titulo
+#       genero
+#       director
+#     }
+#   }
+# }
+#
+# NOTAS IMPORTANTES:
+# - En GraphQL solo obtienes los campos que pides explícitamente
+# - Puedes anidar relaciones (entrada -> película -> entradas -> película...)
+# - El servidor valida automáticamente que las queries cumplan el esquema
+# - Puedes ampliar con Mutations para crear/actualizar/borrar datos
+# - Puedes añadir paginación, filtros y ordenación a las listas
+# ==========================================================================

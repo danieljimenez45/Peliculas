@@ -1,0 +1,27 @@
+/* Estilos adicionales aparte de los de Bootstrap (alineado con DWES25-26) */
+body {
+    margin: 0;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("/images/fondo1.jpg") no-repeat center center;
+    background-size: cover;
+    opacity: 0.3; /* 30% */
+    z-index: -1;
+}
+
+.form-group > .col-sm-10 {
+    position: relative;
+}
+
+.form-control-feedback {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}

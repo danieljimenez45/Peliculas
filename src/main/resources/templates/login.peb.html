@@ -1,0 +1,54 @@
+{% extends "fragments/layout" %}
+
+{% block body %}
+
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <!-- Login Form -->
+        <div class="col-md-6 mt-5" id="loginbox">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> {{ message('auth.login') }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMessage | default('Usuario o contraseña incorrectos') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    <form action="/auth/login-post" id="loginform" method="POST">
+                        <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}">
+                        <div class="mb-3">
+                            <label class="form-label" for="login-username">{{ message('auth.username') }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input class="form-control" id="login-username" name="username"
+                                       placeholder="{{ message('auth.username') }}"
+                                       required type="text">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="login-password">{{ message('auth.password') }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input class="form-control" id="login-password" name="password"
+                                       placeholder="{{ message('auth.password') }}"
+                                       required type="password">
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-success" type="submit">{{ message('auth.login') }}</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+### getAll
+GET http://localhost:3000/api/v1/entradas
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/entradas?peliculaId=1
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/entradas?metodoPago=TARJETA
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/entradas?precioMin=10.0&precioMax=15.0
+
+### getById
+GET http://localhost:3000/api/v1/entradas/1
+
+### getById (una que no existe)
+GET http://localhost:3000/api/v1/entradas/999
+
+### Nueva entrada
+POST http://localhost:3000/api/v1/entradas
+Content-Type: application/json
+
+{
+  "fecha": "2024-12-20",
+  "precio": 12.50,
+  "metodoPago": "TARJETA",
+  "peliculaId": 1
+}
+
+### Actualiza entrada
+PUT http://localhost:3000/api/v1/entradas/1
+Content-Type: application/json
+
+{
+  "fecha": "2024-12-25",
+  "precio": 14.00,
+  "metodoPago": "TARJETA",
+  "peliculaId": 1
+}
+
+### Delete entrada
+DELETE http://localhost:3000/api/v1/entradas/2
+
+### Paginación y ordenación
+GET http://localhost:3000/api/v1/entradas?sortBy=precio&direction=desc
+###
+GET http://localhost:3000/api/v1/entradas?sortBy=precio&direction=desc&size=1
+###
+GET http://localhost:3000/api/v1/entradas?sortBy=precio&direction=desc&size=1&page=0
+###
+GET http://localhost:3000/api/v1/entradas?peliculaId=1&sortBy=fecha&direction=asc&size=2&page=0
+###
+GET http://localhost:3000/api/v1/entradas?precioMin=10.0&precioMax=20.0&metodoPago=TARJETA&sortBy=precio&direction=desc&size=5&page=0
+
+

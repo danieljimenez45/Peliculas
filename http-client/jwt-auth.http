@@ -1,0 +1,25 @@
+### Authorization by token, part 1. Retrieve and save token.
+
+### Proceso de Login
+POST http://localhost:3000/api/v1/auth/signin
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin1"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### Proceso de Registro
+POST http://localhost:3000/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "nombre": "Test",
+  "apellidos": "Test",
+  "username": "test2",
+  "email": "test@test.com",
+  "password": "12345",
+  "passwordComprobacion": "12345"
+}

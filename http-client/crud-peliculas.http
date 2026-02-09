@@ -1,0 +1,61 @@
+### getAll
+GET http://localhost:3000/api/v1/peliculas
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/peliculas?titulo=El Padrino
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/peliculas?titulo=El Padrino&genero=Drama
+
+### getAll (RequestParam)
+GET http://localhost:3000/api/v1/peliculas?genero=Ciencia Ficción
+
+### getById
+GET http://localhost:3000/api/v1/peliculas/1
+
+### getById (una que no existe)
+GET http://localhost:3000/api/v1/peliculas/999
+
+### Nueva película
+POST http://localhost:3000/api/v1/peliculas
+Content-Type: application/json
+
+{
+  "titulo": "El Padrino",
+  "genero": "Drama",
+  "duracion": 175,
+  "sinopsis": "La historia de una familia de la mafia italiana en Nueva York",
+  "actoresPrincipales": "Marlon Brando, Al Pacino",
+  "actoresSecundarios": "James Caan, Robert Duvall",
+  "director": "Francis Ford Coppola"
+}
+
+### Actualiza película
+PUT http://localhost:3000/api/v1/peliculas/1
+Content-Type: application/json
+
+{
+  "titulo": "El Padrino - Edición Especial",
+  "genero": "Drama",
+  "duracion": 180,
+  "sinopsis": "La historia de una familia de la mafia italiana en Nueva York - Versión extendida",
+  "actoresPrincipales": "Marlon Brando, Al Pacino",
+  "actoresSecundarios": "James Caan, Robert Duvall",
+  "director": "Francis Ford Coppola"
+}
+
+### Delete película
+DELETE http://localhost:3000/api/v1/peliculas/2
+
+### Paginación y ordenación
+GET http://localhost:3000/api/v1/peliculas?sortBy=titulo&direction=desc
+###
+GET http://localhost:3000/api/v1/peliculas?sortBy=titulo&direction=desc&size=1
+###
+GET http://localhost:3000/api/v1/peliculas?sortBy=titulo&direction=desc&size=1&page=0
+###
+GET http://localhost:3000/api/v1/peliculas?genero=Ciencia Ficción&sortBy=duracion&direction=asc&size=2&page=0
+
+
+###
+GET http://localhost:3000/api/v1/peliculas?titulo=Avatar8&titular=Jose&sortBy=titular&direction=desc&size=1&page=0

@@ -1,0 +1,63 @@
+{% extends "fragments/layout" %}
+
+{% import "fragments/inputField" %}
+
+{% block body %}
+
+<div class="container" style="padding-top: 80px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4">
+                <i class="bi bi-{% if modoEditar %}pencil{% else %}plus-circle{% endif %}"></i>
+                {% if modoEditar %}{{ message('editar') }}{% else %}{{ message('nueva') }}{% endif %} {{ message('pelicula') }}
+            </h2>
+            
+            <div class="card shadow">
+                <div class="card-body">
+                    <form class="form-horizontal" id="add-pelicula-form" method="post"
+                          action="{% if modoEditar %}/peliculas/{{peliculaId}}/edit{% else %}/peliculas/new{% endif %}">
+                        <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}">
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                {{ inputField("pelicula", "Título", "titulo", "text", pelicula.titulo, _context) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ inputField("pelicula", "Género", "genero", "text", pelicula.genero, _context) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ inputField("pelicula", "Duración (minutos)", "duracion", "number", pelicula.duracion, _context) }}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ inputField("pelicula", "Sinopsis", "sinopsis", "text", pelicula.sinopsis, _context) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ inputField("pelicula", "Actores Principales", "actoresPrincipales", "text", pelicula.actoresPrincipales, _context) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ inputField("pelicula", "Actores Secundarios", "actoresSecundarios", "text", pelicula.actoresSecundarios, _context) }}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ inputField("pelicula", "Director", "director", "text", pelicula.director, _context) }}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-{% if modoEditar %}check{% else %}plus{% endif %}"></i>
+                                    {% if modoEditar %}{{ message('actualizar.pelicula') }}{% else %}{{ message('añadir.pelicula') }}{% endif %}
+                                </button>
+                                <a href="/peliculas/lista" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> {{ message('cancelar') }}
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

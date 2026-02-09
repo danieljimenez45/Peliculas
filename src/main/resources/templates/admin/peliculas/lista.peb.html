@@ -1,0 +1,22 @@
+{% extends "fragments/layout" %}
+{% import "fragments/pager" %}
+
+{% block body %}
+<div class="row mb-4">
+  <div class="col-md-12">
+    {% include "fragments/messages" %}
+  </div>
+</div>
+
+<div id="lista-peliculas-container">
+  {% include "fragments/listaPeliculas" %}
+</div>
+
+{{ pager("peliculas", page, _context) }}
+
+<div id="placeholder-modal"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ href('/js/app-lista.js') }}"></script>
+{% endblock %}

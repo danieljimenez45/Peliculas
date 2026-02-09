@@ -1,0 +1,7 @@
+### getAll (debería devolver todas las peliculas al venir la petición de un origen autorizado)
+GET http://localhost:3000/api/v1/peliculas
+Origin: http://mifrontend.es
+
+### getAll (debería devolver un 403 al no venit la petición de un origen autorizado)
+GET http://localhost:3000/api/v1/peliculas
+Origin: http://otrodominio.es

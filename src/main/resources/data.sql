@@ -1,0 +1,66 @@
+
+INSERT INTO PELICULAS (titulo, genero, duracion, sinopsis, actores_principales, actores_secundarios, director) VALUES
+('El Padrino', 'Drama', 175, 'La historia de una familia de la mafia italiana en Nueva York', 'Marlon Brando, Al Pacino', 'James Caan, Robert Duvall', 'Francis Ford Coppola'),
+('Inception', 'Ciencia Ficción', 148, 'Un ladrón que roba secretos a través de la tecnología de compartir sueños', 'Leonardo DiCaprio, Marion Cotillard', 'Tom Hardy, Ellen Page', 'Christopher Nolan'),
+('Matrix', 'Ciencia Ficción', 136, 'Un programador descubre que la realidad es una simulación', 'Keanu Reeves, Laurence Fishburne', 'Carrie-Anne Moss, Hugo Weaving', 'Lana Wachowski, Lilly Wachowski'),
+('Pulp Fiction', 'Crimen', 154, 'Historias entrelazadas de crimen en Los Ángeles', 'John Travolta, Samuel L. Jackson', 'Uma Thurman, Bruce Willis', 'Quentin Tarantino'),
+('El Señor de los Anillos: La Comunidad del Anillo', 'Fantasía', 178, 'Un hobbit emprende un viaje épico para destruir un anillo malévolo', 'Elijah Wood, Ian McKellen', 'Viggo Mortensen, Orlando Bloom', 'Peter Jackson'),
+('Forrest Gump', 'Drama', 142, 'La vida de un hombre con discapacidad intelectual que vive momentos históricos', 'Tom Hanks, Robin Wright', 'Gary Sinise, Sally Field', 'Robert Zemeckis'),
+('El Rey León', 'Animación', 88, 'Un joven león debe reclamar su lugar como rey de la sabana', 'Matthew Broderick, James Earl Jones', 'Jeremy Irons, Nathan Lane', 'Roger Allers, Rob Minkoff'),
+('Titanic', 'Romance', 194, 'Una historia de amor a bordo del transatlántico más famoso del mundo', 'Leonardo DiCaprio, Kate Winslet', 'Billy Zane, Kathy Bates', 'James Cameron'),
+('Gladiator', 'Acción', 155, 'Un general romano busca venganza contra el corrupto emperador', 'Russell Crowe, Joaquin Phoenix', 'Connie Nielsen, Oliver Reed', 'Ridley Scott'),
+('Interstellar', 'Ciencia Ficción', 169, 'Un grupo de exploradores viaja a través de un agujero de gusano en el espacio', 'Matthew McConaughey, Anne Hathaway', 'Jessica Chastain, Michael Caine', 'Christopher Nolan'),
+('El Resplandor', 'Terror', 146, 'Un escritor acepta un trabajo como cuidador de un hotel aislado', 'Jack Nicholson, Shelley Duvall', 'Danny Lloyd, Scatman Crothers', 'Stanley Kubrick'),
+('Parasite', 'Thriller', 132, 'Una familia pobre se infiltra en una familia rica con consecuencias inesperadas', 'Song Kang-ho, Lee Sun-kyun', 'Cho Yeo-jeong, Park So-dam', 'Bong Joon-ho'),
+('Dune', 'Ciencia Ficción', 155, 'Un joven noble debe proteger el planeta más valioso del universo', 'Timothée Chalamet, Rebecca Ferguson', 'Oscar Isaac, Zendaya', 'Denis Villeneuve'),
+('Spider-Man: No Way Home', 'Superhéroes', 148, 'Spider-Man busca ayuda del Doctor Strange para restaurar su identidad secreta', 'Tom Holland, Zendaya', 'Benedict Cumberbatch, Willem Dafoe', 'Jon Watts'),
+('Top Gun: Maverick', 'Acción', 130, 'Pete Maverick entrena a un nuevo grupo de pilotos para una misión peligrosa', 'Tom Cruise, Miles Teller', 'Jennifer Connelly, Val Kilmer', 'Joseph Kosinski'),
+('Everything Everywhere All at Once', 'Ciencia Ficción', 139, 'Una mujer debe conectarse con versiones paralelas de sí misma para salvar el multiverso', 'Michelle Yeoh, Ke Huy Quan', 'Stephanie Hsu, Jamie Lee Curtis', 'Daniel Kwan, Daniel Scheinert'),
+('El Buen Doctor', 'Drama', 123, 'Un cirujano con autismo y síndrome de Savant se une a un hospital', 'Freddie Highmore, Antonia Thomas', 'Nicholas Gonzalez, Hill Harper', 'David Shore'),
+('Joker', 'Drama', 122, 'Un comediante fallido desciende a la locura y se convierte en el criminal Joker', 'Joaquin Phoenix, Robert De Niro', 'Zazie Beetz, Frances Conroy', 'Todd Phillips'),
+('1917', 'Guerra', 119, 'Dos soldados británicos deben entregar un mensaje que salvará a 1,600 hombres', 'George MacKay, Dean-Charles Chapman', 'Mark Strong, Andrew Scott', 'Sam Mendes');
+
+-- Datos de ejemplo USUARIOS
+-- Contraseña: Admin1
+insert into USUARIOS (nombre, apellidos, username, email, password)
+values ('Admin', 'Admin Admin', 'admin', 'admin@prueba.net',
+        '$2a$10$vPaqZvZkz6jhb7U7k/V/v.5vprfNdOnh4sxi/qpPRkYTzPmFlI9p2');
+
+insert into USER_ROLES (user_id, roles)
+values (1, 'USER');
+insert into USER_ROLES (user_id, roles)
+values (1, 'ADMIN');
+
+-- Contraseña: User1
+insert into USUARIOS (nombre, apellidos, username, email, password)
+values ('Jose', 'Jose User', 'jose', 'user@prueba.net',
+        '$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.');
+insert into USER_ROLES (user_id, roles)
+values (2, 'USER');
+
+-- Contraseña: Test1
+insert into USUARIOS (nombre, apellidos, username, email, password)
+values ('Test', 'Test Test', 'test', 'test@prueba.net',
+        '$2a$10$Pd1yyq2NowcsDf4Cpf/ZXObYFkcycswqHAqBndE1wWJvYwRxlb.Pu');
+insert into USER_ROLES (user_id, roles)
+values (3, 'USER');
+
+-- Contraseña: Otro1
+insert into USUARIOS (nombre, apellidos, username, email, password)
+values ('María', 'María Otro', 'maría', 'otro@prueba.net',
+        '$2a$12$3Q4.UZbvBMBEvIwwjGEjae/zrIr6S50NusUlBcCNmBd2382eyU0bS');
+insert into USER_ROLES (user_id, roles)
+values (4, 'USER');
+
+
+INSERT INTO ENTRADAS (fecha, precio, metodo_pago, pelicula_id, usuario_id) VALUES
+('2024-12-20', 12.50, 'TARJETA', 1, 2),
+('2024-12-20', 12.50, 'EFECTIVO', 1, 2),
+('2024-12-21', 15.00, 'TARJETA', 2, 4),
+('2024-12-22', 10.00, 'TRANSFERENCIA', 3, 3),
+('2024-12-23', 18.75, 'TARJETA', 4, 2);
+
+
+
+
+

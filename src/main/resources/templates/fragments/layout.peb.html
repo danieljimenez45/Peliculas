@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+{% include "fragments/head" %}
+
+<body class="d-flex flex-column min-vh-100">
+    {% include "fragments/navbar" %}
+    <div class="container mb-5">
+        {% block body %}{%endblock %}
+    </div>
+
+    {% include "fragments/footer" %}
+
+    <!-- Bootstrap 5.3 JS Bundle with Popper -->
+    <script src="{{ href('/webjars/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <!-- Scripts comunes a toda la app -->
+    <script src="{{ href('/js/app.js') }}"></script>
+    <!-- Scripts adicionales por página -->
+    {% block scripts %}{% endblock %}
+
+</body>
+
+</html>

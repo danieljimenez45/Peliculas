@@ -1,0 +1,96 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <button class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="/public">
+            <i class="bi bi-house-door"></i> {{ message('nav.home') }}</a>
+        </li>
+        {% if isAdmin %}
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/peliculas">
+            <i class="bi bi-film"></i> {{ message('nav.lista.peliculas') }}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/peliculas/new">
+            <i class="bi bi-plus-circle"></i> {{ message('nav.new.peliculas') }}</a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <form action="#" class="d-flex me-3" method="get" role="search">
+        <input class="form-control" id="buscador" name="titulo" placeholder="{{ message('peliculas.search') }}"
+          type="search">
+      </form>
+
+      <ul class="navbar-nav">
+        <!-- Language Switcher -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+            <i class="bi bi-globe"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="?lang=es">
+                <img alt="ES" src="https://flagcdn.com/w20/es.png" width="20"> Español
+              </a></li>
+            <li><a class="dropdown-item" href="?lang=en">
+                <img alt="EN" src="https://flagcdn.com/w20/gb.png" width="20"> English
+              </a></li>
+            <li><a class="dropdown-item" href="?lang=fr">
+                <img alt="FR" src="https://flagcdn.com/w20/fr.png" width="20"> Français
+              </a></li>
+            <li><a class="dropdown-item" href="?lang=de">
+                <img alt="DE" src="https://flagcdn.com/w20/de.png" width="20"> Deutsch
+              </a></li>
+            <li><a class="dropdown-item" href="?lang=pt">
+                <img alt="PT" src="https://flagcdn.com/w20/pt.png" width="20"> Português
+              </a></li>
+          </ul>
+        </li>
+        {% if isAuthenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+            <i class="bi bi-person-circle"></i> {{ username | default('Usuario') }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <h6 class="dropdown-header">{{ userRoles | default('USER') }}</h6>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item" href="/app/perfil">
+                <i class="bi bi-person"></i> {{ message('nav.miperfil') }}
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item" id="logoutLink" href="#">
+                <i class="bi bi-box-arrow-right"></i> {{ message('nav.logout') }}
+              </a>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/auth/login">
+            <i class="bi bi-person"></i> {{ message('nav.login') }}
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{% if isAuthenticated %}
+<form action="/auth/logout" id="logoutForm" method="post" style="display: none;">
+  <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}" />
+</form>
+{% endif %}

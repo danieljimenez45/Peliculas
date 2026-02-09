@@ -1,0 +1,42 @@
+<!-- Lista de películas (fragmento reutilizable; useAdminUrls desde controlador para rutas admin) -->
+{% set basePath = useAdminUrls | default(false) ? '/admin/peliculas' : '/peliculas' %}
+{% if page is empty %}
+<div class="alert alert-info text-center">
+  <i class="bi bi-info-circle"></i> {{ message('label.pelicula.empty') }}
+</div>
+{% else %}
+<table class="table table-striped table-hover" id="listaPeliculas">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>{{ message('columna.titulo') }}</th>
+      <th>{{ message('columna.genero') }}</th>
+      <th>{{ message('columna.duracion') }}</th>
+      <th>{{ message('columna.director') }}</th>
+      <th>{{ message('columna.operaciones') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pelicula in page.content %}
+    <tr>
+      <td class="peliculaId">{{ pelicula.idPelicula }}</td>
+      <td><strong>{{ pelicula.titulo }}</strong></td>
+      <td><span class="badge bg-primary">{{ pelicula.genero }}</span></td>
+      <td>{{ pelicula.duracion }} min</td>
+      <td>{{ pelicula.director }}</td>
+      <td>
+        <a href="{{ basePath }}/{{ pelicula.idPelicula }}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i> {{
+          message('b.ver') }}</a>
+        {% if isAdmin or isAuthenticated %}
+        <a href="{{ basePath }}/{{ pelicula.idPelicula }}/edit" class="btn btn-sm btn-warning"><i
+            class="bi bi-pencil"></i> {{ message('b.editar') }}</a>
+        {% if isAdmin %}
+        <a class="borrarPeliculaLink btn btn-sm btn-danger" href="#"><i class="bi bi-trash"></i></a>
+        {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}

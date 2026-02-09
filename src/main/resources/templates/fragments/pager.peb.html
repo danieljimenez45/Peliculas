@@ -1,0 +1,55 @@
+{% macro pager(entityKey, page, _context) %}
+<!-- Controles de paginación (alineado con referencia DWES25-26) -->
+{% if page.totalPages > 1 %}
+<nav class="mt-4">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <p class="text-muted mb-0">
+        {% set endItem = (page.number + 1) * page.size %}
+        {% set finalEndItem = endItem > page.totalElements ? page.totalElements : endItem %}
+        {{ message('mostrando') }} {{ (page.number * page.size) + 1 }} a {{ finalEndItem }} de {{ page.totalElements }}
+        {{ message(entityKey) }}
+      </p>
+    </div>
+    <div class="col-md-6">
+      <ul class="pagination justify-content-end mb-0">
+        {% if page.hasPrevious %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page.number - 1 }}&size={{ page.size }}">
+            <i class="bi bi-chevron-left"></i> {{ message('p.anterior') }}
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="bi bi-chevron-left"></i> {{ message('p.anterior') }}</span>
+        </li>
+        {% endif %}
+
+        {% for i in range(0, page.totalPages - 1) %}
+        {% if i == page.number %}
+        <li class="page-item active">
+          <span class="page-link">{{ i + 1 }}</span>
+        </li>
+        {% elseif i >= (page.number - 2) and i <= (page.number + 2) %} <li class="page-item">
+          <a class="page-link" href="?page={{ i }}&size={{ page.size }}">{{ i + 1 }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+
+          {% if page.hasNext %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page.number + 1 }}&size={{ page.size }}">
+              {{ message('p.siguiente') }} <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">{{ message('p.siguiente') }} <i class="bi bi-chevron-right"></i></span>
+          </li>
+          {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endif %}
+{% endmacro %}

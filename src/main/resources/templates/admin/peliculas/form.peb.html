@@ -1,0 +1,30 @@
+{% extends "fragments/layout" %}
+{% import "fragments/inputField" %}
+
+{% block body %}
+<h2>{% if not modoEditar %}{{ message('nueva') }}{% else %}{{ message('editar') }}{% endif %} {{ message('pelicula') }}
+</h2>
+<form class="form-horizontal" id="add-pelicula-form" method="post"
+  action="{% if modoEditar %}/admin/peliculas/{{ peliculaId }}/edit{% else %}/admin/peliculas/new{% endif %}">
+  <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}">
+  <div class="form-group has-feedback">
+    {{ inputField("pelicula", message('label.pelicula.titulo'), "titulo", "text", pelicula.titulo, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.genero'), "genero", "text", pelicula.genero, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.duracion'), "duracion", "number", pelicula.duracion, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.sinopsis'), "sinopsis", "text", pelicula.sinopsis, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.actoresPrincipales'), "actoresPrincipales", "text",
+    pelicula.actoresPrincipales, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.actoresSecundarios'), "actoresSecundarios", "text",
+    pelicula.actoresSecundarios, _context) }}
+    {{ inputField("pelicula", message('label.pelicula.director'), "director", "text", pelicula.director, _context) }}
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button class="btn btn-primary" type="submit">
+        {{ modoEditar ? message('actualizar.pelicula') : message('añadir.pelicula') }}
+      </button>
+      <a href="/admin/peliculas" class="btn btn-secondary">{{ message('cancelar') }}</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

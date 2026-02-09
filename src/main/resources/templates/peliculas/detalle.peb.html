@@ -1,0 +1,79 @@
+{% extends "fragments/layout" %}
+
+{% block body %}
+
+<div class="container" style="padding-top: 80px;">
+    <!-- Detalle de Película -->
+    {% if pelicula is empty %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> {{ message('label.pelicula.empty') | default('No se ha encontrado la película') }}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="bi bi-film"></i> {{ message('label.pelicula.detalle') | default('Detalle de Película') }} - {{ pelicula.titulo }}
+            </h2>
+            <div class="card shadow">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9">{{ pelicula.idPelicula }}</dd>
+                        
+                        <dt class="col-sm-3">{{ message('label.pelicula.titulo') | default('Título') }}:</dt>
+                        <dd class="col-sm-9"><strong>{{ pelicula.titulo }}</strong></dd>
+                        
+                        <dt class="col-sm-3">{{ message('label.pelicula.genero') | default('Género') }}:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">{{ pelicula.genero }}</span>
+                        </dd>
+                        
+                        <dt class="col-sm-3">{{ message('label.pelicula.duracion') | default('Duración') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.duracion }} minutos</dd>
+                        
+                        {% if pelicula.sinopsis %}
+                        <dt class="col-sm-3">{{ message('label.pelicula.sinopsis') | default('Sinopsis') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.sinopsis }}</dd>
+                        {% endif %}
+                        
+                        {% if pelicula.actoresPrincipales %}
+                        <dt class="col-sm-3">{{ message('label.pelicula.actoresPrincipales') | default('Actores Principales') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.actoresPrincipales }}</dd>
+                        {% endif %}
+                        
+                        {% if pelicula.actoresSecundarios %}
+                        <dt class="col-sm-3">{{ message('label.pelicula.actoresSecundarios') | default('Actores Secundarios') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.actoresSecundarios }}</dd>
+                        {% endif %}
+                        
+                        <dt class="col-sm-3">{{ message('label.pelicula.director') | default('Director') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.director }}</dd>
+                        
+                        {% if pelicula.createdAt is not null %}
+                        <dt class="col-sm-3">{{ message('label.pelicula.createdAt') | default('Fecha de Creación') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.createdAt | date("dd/MM/yyyy HH:mm") }}</dd>
+                        {% endif %}
+                        
+                        {% if pelicula.updatedAt is not null %}
+                        <dt class="col-sm-3">{{ message('label.pelicula.updatedAt') | default('Última Actualización') }}:</dt>
+                        <dd class="col-sm-9">{{ pelicula.updatedAt | date("dd/MM/yyyy HH:mm") }}</dd>
+                        {% endif %}
+                    </dl>
+                    <div class="mt-3">
+                        <a href="/peliculas/lista" class="btn btn-primary">
+                            <i class="bi bi-arrow-left"></i> {{ message('b.volver') }}
+                        </a>
+                        {% if isAuthenticated %}
+                        <a href="/peliculas/{{ pelicula.idPelicula }}/edit" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> {{ message('b.editar') }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+### Todas las películas
+GRAPHQL http://localhost:3000/graphql
+
+query {
+   peliculas {
+     id
+     titulo
+     genero
+     duracion
+     director
+     entradas {
+       id
+       fecha
+       precio
+       metodoPago
+     }
+   }
+}
+
+### Película por Id
+GRAPHQL http://localhost:3000/graphql
+
+query {
+  peliculaById(id: "1") {
+    titulo
+    genero
+    duracion
+    sinopsis
+    director
+    entradas {
+      fecha
+      precio
+    }
+  }
+}
+
+### Películas por género
+GRAPHQL http://localhost:3000/graphql
+
+query {
+  peliculasByGenero(genero: "Acción") {
+    titulo
+    duracion
+    director
+  }
+}
+
+### Películas por título
+GRAPHQL http://localhost:3000/graphql
+
+query {
+  peliculasByTitulo(titulo: "Matrix") {
+    titulo
+    genero
+    duracion
+    director
+  }
+}
+
+### Todas las entradas
+GRAPHQL http://localhost:3000/graphql
+
+query {
+   entradas {
+     id
+     fecha
+     precio
+     metodoPago
+     pelicula {
+       titulo
+       genero
+       director
+     }
+   }
+}
+
+### Entrada por Id
+GRAPHQL http://localhost:3000/graphql
+
+query {
+  entradaById(id: "1") {
+    fecha
+    precio
+    metodoPago
+    pelicula {
+      titulo
+      genero
+      director
+    }
+  }
+}
+
+### Solo datos principales de películas y entradas
+GRAPHQL http://localhost:3000/graphql
+
+query {
+   peliculas {
+     titulo
+     genero
+     entradas {
+       fecha
+       precio
+     }
+   }
+}

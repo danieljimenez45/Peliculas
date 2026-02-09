@@ -1,0 +1,306 @@
+###############################################################################
+###                     CRUD USUARIOS - ENDPOINTS ADMIN                     ###
+###  Requiere rol ADMIN para acceder                                        ###
+###############################################################################
+
+### GET ALL - Listar todos los usuarios (paginado)
+GET http://localhost:3000/api/v1/users
+Authorization: Bearer {{auth_token}}
+
+### GET ALL - Con parámetros de paginación
+GET http://localhost:3000/api/v1/users?page=0&size=5&sortBy=username&direction=asc
+Authorization: Bearer {{auth_token}}
+
+### GET ALL - Filtrar por username
+GET http://localhost:3000/api/v1/users?username=admin
+Authorization: Bearer {{auth_token}}
+
+### GET ALL - Filtrar por email
+GET http://localhost:3000/api/v1/users?email=prueba.net
+Authorization: Bearer {{auth_token}}
+
+### GET ALL - Filtrar por isDeleted
+GET http://localhost:3000/api/v1/users?isDeleted=false
+Authorization: Bearer {{auth_token}}
+
+### GET ALL - Filtrar combinado
+GET http://localhost:3000/api/v1/users?username=jose&isDeleted=false&sortBy=id&direction=desc
+Authorization: Bearer {{auth_token}}
+
+### GET BY ID - Obtener usuario por ID
+GET http://localhost:3000/api/v1/users/1
+Authorization: Bearer {{auth_token}}
+
+### GET BY ID - Usuario que no existe (404)
+GET http://localhost:3000/api/v1/users/999
+Authorization: Bearer {{auth_token}}
+
+### POST - Crear nuevo usuario (contraseña: Carlos1)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "Carlos",
+  "apellidos": "García López",
+  "username": "carlos",
+  "password": "$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.",
+  "email": "carlos@prueba.net",
+  "roles": [
+    "USER"
+  ]
+}
+
+### POST - Crear usuario con rol ADMIN
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "SuperAdmin",
+  "apellidos": "Sistema",
+  "username": "superadmin",
+  "password": "$2a$10$vPaqZvZkz6jhb7U7k/V/v.5vprfNdOnh4sxi/qpPRkYTzPmFlI9p2",
+  "email": "superadmin@prueba.net",
+  "roles": [
+    "USER",
+    "ADMIN"
+  ]
+}
+
+### POST - Usuario con datos inválidos (400 Bad Request)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "",
+  "apellidos": "",
+  "username": "",
+  "password": "",
+  "email": "email-invalido",
+  "roles": []
+}
+
+### PUT - Actualizar usuario
+PUT http://localhost:3000/api/v1/users/5
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "Carlos Actualizado",
+  "apellidos": "García López Modificado",
+  "username": "carlos_updated",
+  "password": "$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.",
+  "email": "carlos.updated@prueba.net",
+  "roles": [
+    "USER"
+  ]
+}
+
+### PUT - Actualizar usuario que no existe (404)
+PUT http://localhost:3000/api/v1/users/999
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "No Existe",
+  "apellidos": "Usuario",
+  "username": "noexiste",
+  "password": "$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.",
+  "email": "noexiste@prueba.net",
+  "roles": [
+    "USER"
+  ]
+}
+
+### DELETE - Eliminar usuario
+DELETE http://localhost:3000/api/v1/users/5
+Authorization: Bearer {{auth_token}}
+
+### DELETE - Eliminar usuario que no existe (404)
+DELETE http://localhost:3000/api/v1/users/999
+Authorization: Bearer {{auth_token}}
+
+
+###############################################################################
+###                     PERFIL USUARIO AUTENTICADO                          ###
+###  Requiere rol USER para acceder                                         ###
+###############################################################################
+
+### GET ME PROFILE - Obtener perfil del usuario autenticado
+GET http://localhost:3000/api/v1/users/me/profile
+Authorization: Bearer {{auth_token}}
+
+### PUT ME PROFILE - Actualizar perfil del usuario autenticado
+PUT http://localhost:3000/api/v1/users/me/profile
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "nombre": "Mi Nombre Actualizado",
+  "apellidos": "Mis Apellidos Actualizados",
+  "username": "mi_username",
+  "password": "$2a$10$vPaqZvZkz6jhb7U7k/V/v.5vprfNdOnh4sxi/qpPRkYTzPmFlI9p2",
+  "email": "miemail@prueba.net",
+  "roles": [
+    "USER"
+  ]
+}
+
+### DELETE ME PROFILE - Eliminar cuenta del usuario autenticado
+DELETE http://localhost:3000/api/v1/users/me/profile
+Authorization: Bearer {{auth_token}}
+
+
+###############################################################################
+###                     ENTRADAS DEL USUARIO AUTENTICADO                    ###
+###  Requiere rol USER para acceder                                         ###
+###############################################################################
+
+### GET ME ENTRADAS - Listar entradas del usuario autenticado
+GET http://localhost:3000/api/v1/users/me/entradas
+Authorization: Bearer {{auth_token}}
+
+### GET ME ENTRADAS - Con paginación
+GET http://localhost:3000/api/v1/users/me/entradas?page=0&size=5&sortBy=fecha&direction=desc
+Authorization: Bearer {{auth_token}}
+
+### GET ME ENTRADAS - Ordenar por precio ascendente
+GET http://localhost:3000/api/v1/users/me/entradas?sortBy=precio&direction=asc
+Authorization: Bearer {{auth_token}}
+
+### GET ME ENTRADA BY ID - Obtener entrada específica del usuario
+GET http://localhost:3000/api/v1/users/me/entradas/1
+Authorization: Bearer {{auth_token}}
+
+### GET ME ENTRADA BY ID - Entrada que no existe o no pertenece al usuario (404)
+GET http://localhost:3000/api/v1/users/me/entradas/999
+Authorization: Bearer {{auth_token}}
+
+### POST ME ENTRADAS - Crear nueva entrada para el usuario autenticado
+POST http://localhost:3000/api/v1/users/me/entradas
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": "2024-12-25",
+  "precio": 15.50,
+  "metodoPago": "TARJETA",
+  "peliculaId": 1
+}
+
+### POST ME ENTRADAS - Crear entrada con método de pago efectivo
+POST http://localhost:3000/api/v1/users/me/entradas
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": "2024-12-26",
+  "precio": 12.00,
+  "metodoPago": "EFECTIVO",
+  "peliculaId": 2
+}
+
+### POST ME ENTRADAS - Crear entrada con transferencia
+POST http://localhost:3000/api/v1/users/me/entradas
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": "2024-12-27",
+  "precio": 18.75,
+  "metodoPago": "TRANSFERENCIA",
+  "peliculaId": 3
+}
+
+### POST ME ENTRADAS - Datos inválidos (400 Bad Request)
+POST http://localhost:3000/api/v1/users/me/entradas
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": null,
+  "precio": -10,
+  "metodoPago": "",
+  "peliculaId": null
+}
+
+### POST ME ENTRADAS - Película que no existe (404)
+POST http://localhost:3000/api/v1/users/me/entradas
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": "2024-12-28",
+  "precio": 15.00,
+  "metodoPago": "TARJETA",
+  "peliculaId": 999
+}
+
+### PUT ME ENTRADAS - Actualizar entrada del usuario
+PUT http://localhost:3000/api/v1/users/me/entradas/1
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "fecha": "2024-12-30",
+  "precio": 20.00,
+  "metodoPago": "TARJETA",
+  "peliculaId": 2
+}
+
+### PUT ME ENTRADAS - Actualizar solo el precio
+PUT http://localhost:3000/api/v1/users/me/entradas/1
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "precio": 25.50
+}
+
+### PUT ME ENTRADAS - Actualizar solo el método de pago
+PUT http://localhost:3000/api/v1/users/me/entradas/1
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "metodoPago": "EFECTIVO"
+}
+
+### PUT ME ENTRADAS - Entrada que no existe (404)
+PUT http://localhost:3000/api/v1/users/me/entradas/999
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "precio": 15.00
+}
+
+### DELETE ME ENTRADAS - Eliminar entrada del usuario
+DELETE http://localhost:3000/api/v1/users/me/entradas/1
+Authorization: Bearer {{auth_token}}
+
+### DELETE ME ENTRADAS - Entrada que no existe (404)
+DELETE http://localhost:3000/api/v1/users/me/entradas/999
+Authorization: Bearer {{auth_token}}
+
+
+###############################################################################
+###                         PRUEBAS DE SEGURIDAD                            ###
+###############################################################################
+
+### Sin autenticación - Debería dar 401 Unauthorized
+GET http://localhost:3000/api/v1/users
+
+### Sin autenticación - Debería dar 401 Unauthorized
+GET http://localhost:3000/api/v1/users/me/profile
+
+### Token inválido - Debería dar 401 Unauthorized
+GET http://localhost:3000/api/v1/users/me/profile
+Authorization: Bearer token_invalido_12345
+
+### Usuario USER intentando acceder a endpoints ADMIN - Debería dar 403 Forbidden
+# (Primero hacer login con un usuario sin rol ADMIN en jwt-auth.http)
+GET http://localhost:3000/api/v1/users
+Authorization: Bearer {{auth_token}}
