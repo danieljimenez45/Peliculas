@@ -1,0 +1,9 @@
+name: PELICULAS-JAVA
+services:
+  app:
+    build: .
+    container_name: app
+    ports:
+      - "8080:3000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
