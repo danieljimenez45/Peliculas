@@ -1,4 +1,4 @@
-name: PELICULAS-JAVA
+name: PELICULAS-JAVA-DEV
 services:
   app:
     build: .

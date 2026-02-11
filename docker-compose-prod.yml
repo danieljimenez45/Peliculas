@@ -1,4 +1,5 @@
-name: PELICULAS-JAVA
+name: PELICULAS-JAVA-PROD
+
 services:
   app:
     build: .
@@ -6,10 +7,16 @@ services:
     ports:
       - "8080:3000"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=db
   db:
     image: postgres:18-alpine
+    container_name: db
+    ports:
+      - "5433:5432"   # Host 5433 porque 5432 suele estar ocupado por Postgres local; app en host: DB_PORT=5433
     environment:
       POSTGRES_DB: miapp
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: pas
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - ./postgresql-init/data.sql:/docker-entrypoint-initdb.d/data.sql
