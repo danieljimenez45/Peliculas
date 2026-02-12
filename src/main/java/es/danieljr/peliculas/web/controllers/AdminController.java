@@ -67,25 +67,37 @@ public class AdminController {
     return "admin/peliculas/detalle";
   }
 
-  // Creamos una nueva tarjeta
+  // Creamos una nueva película
   @GetMapping("/peliculas/new")
-  public String nuevaPeliculaForm(Model model) {
-    // Lo añadimos al model
-    model.addAttribute("pelicula", PeliculaCreateDto.builder().build());
+  public String nuevaPeliculaForm(Model model, HttpSession session) {
+    // Intentar recuperar datos de sesión si hay errores previos
+    PeliculaCreateDto pelicula = (PeliculaCreateDto) session.getAttribute("formData_admin_pelicula_new");
+    if (pelicula == null) {
+      pelicula = PeliculaCreateDto.builder().build();
+    } else {
+      // Limpiar datos de sesión después de recuperarlos
+      session.removeAttribute("formData_admin_pelicula_new");
+    }
+    model.addAttribute("pelicula", pelicula);
     model.addAttribute("modoEditar", false);
     return "admin/peliculas/form";
   }
 
   @PostMapping("/peliculas/new")
   public String nuevaPeliculaSubmit(@Valid @ModelAttribute("pelicula") PeliculaCreateDto pelicula,
-      BindingResult bindingResult) {
+      BindingResult bindingResult,
+      HttpSession session) {
 
     log.info("Datos recibidos del formulario: {}", pelicula);
     // Si no tiene errores...
     if (bindingResult.hasErrors()) {
       log.info("hay errores en la validación");
+      // Guardar datos del formulario en sesión para recuperarlos después
+      session.setAttribute("formData_admin_pelicula_new", pelicula);
       return "admin/peliculas/form";
     } else {
+      // Limpiar datos de sesión si existen
+      session.removeAttribute("formData_admin_pelicula_new");
       // insertamos
       peliculasService.save(pelicula);
       return "redirect:/admin/peliculas";
@@ -93,20 +105,28 @@ public class AdminController {
   }
 
   @GetMapping("/peliculas/{id}/edit")
-  public String editarPelicualForm(@PathVariable Long id, Model model) {
+  public String editarPelicualForm(@PathVariable Long id, Model model, HttpSession session) {
     Pelicula peliculaEncontrada = peliculasService.buscarPorId(id).orElse(null);
     if (peliculaEncontrada == null) {
       return "redirect:/admin/peliculas/new";
     } else {
-      PeliculaUpdateDto pelicula = PeliculaUpdateDto.builder()
-          .titulo(peliculaEncontrada.getTitulo())
-          .genero(peliculaEncontrada.getGenero())
-          .duracion(peliculaEncontrada.getDuracion())
-          .sinopsis(peliculaEncontrada.getSinopsis())
-          .actoresPrincipales(peliculaEncontrada.getActoresPrincipales())
-          .actoresSecundarios(peliculaEncontrada.getActoresSecundarios())
-          .director(peliculaEncontrada.getDirector())
-          .build();
+      // Intentar recuperar datos de sesión si hay errores previos
+      PeliculaUpdateDto pelicula = (PeliculaUpdateDto) session.getAttribute("formData_admin_pelicula_edit_" + id);
+      if (pelicula == null) {
+        // Si no hay datos en sesión, usar los datos de la BD
+        pelicula = PeliculaUpdateDto.builder()
+            .titulo(peliculaEncontrada.getTitulo())
+            .genero(peliculaEncontrada.getGenero())
+            .duracion(peliculaEncontrada.getDuracion())
+            .sinopsis(peliculaEncontrada.getSinopsis())
+            .actoresPrincipales(peliculaEncontrada.getActoresPrincipales())
+            .actoresSecundarios(peliculaEncontrada.getActoresSecundarios())
+            .director(peliculaEncontrada.getDirector())
+            .build();
+      } else {
+        // Limpiar datos de sesión después de recuperarlos
+        session.removeAttribute("formData_admin_pelicula_edit_" + id);
+      }
       model.addAttribute("pelicula", pelicula);
       model.addAttribute("peliculaId", id);
       model.addAttribute("modoEditar", true);
@@ -119,15 +139,20 @@ public class AdminController {
       @Valid @ModelAttribute("pelicula") PeliculaUpdateDto pelicula,
       BindingResult result,
       Model model,
+      HttpSession session,
       RedirectAttributes redirectAttributes) {
     if (result.hasErrors()) {
       redirectAttributes.addFlashAttribute("error",
           "Ha ocurrido un error al actualizar la pelicula.");
+      // Guardar datos del formulario en sesión para recuperarlos después
+      session.setAttribute("formData_admin_pelicula_edit_" + id, pelicula);
       model.addAttribute("peliculaId", id);
       model.addAttribute("modoEditar", true);
       return "admin/peliculas/form";
     }
 
+    // Limpiar datos de sesión si existen
+    session.removeAttribute("formData_admin_pelicula_edit_" + id);
     peliculasService.update(id, pelicula);
     redirectAttributes.addFlashAttribute("success",
         "Pelicula actualizada correctamente.");
