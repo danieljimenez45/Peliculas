@@ -1,14 +1,65 @@
 # Películas
 Proyecto de una API REST programada con Spring Boot.
 
-# Proyecto
-Este proyecto es una muestra de lo que se ha ido viendo en clase siguiendo los pasos del [repositorio del tema](https://github.com/joseluisgs?tab=repositories&q=DesarrolloWebEntornosServidor-02&type=&language=&sort=).
+# Acceso a la aplicación
 
-# Problema
-Vamos a crear una API REST y página web para una gestión básica de películas y entradas.
+Una vez iniciada la aplicación, puedes acceder a la página web en:
+- **URL**: http://localhost:3000/public
 
-# Autor
-El código de este repositorio se basa en el proyecto del repositorio [TiendaApiDaw-SpringBoot](https://github.com/joseluisgs/TiendaApiDaw-SpringBoot) de [José Luis González Sánchez](https://joseluisgs.dev/)
+# Usuarios y contraseñas
+
+El proyecto incluye usuarios de ejemplo predefinidos:
+
+## Usuario Administrador
+- **Username**: `admin`
+- **Contraseña**: `Admin1`
+- **Roles**: USER, ADMIN
+- **Email**: admin@prueba.net
+
+## Usuario Estándar
+- **Username**: `jose`
+- **Contraseña**: `User1`
+- **Roles**: USER
+- **Email**: user@prueba.net
+
+# Cookies y Sesiones
+
+## Cookies implementadas
+
+El proyecto utiliza las siguientes cookies:
+
+1. **Cookie `visitasApp`**
+   - **Propósito**: Contador de visitas del usuario
+   - **Duración**: 1 año (365 días)
+   - **Path**: `/`
+   - **HttpOnly**: `false` (accesible desde JavaScript para mostrar el contador)
+   - **Secure**: Se establece según el protocolo de la petición (HTTPS/HTTP)
+   - **Implementación**: Se crea/actualiza automáticamente al iniciar sesión exitosamente
+
+2. **Cookie `lang`**
+   - **Propósito**: Almacenar el idioma preferido del usuario (internacionalización)
+   - **Duración**: 1 año (365 días)
+   - **Path**: `/`
+   - **Idioma por defecto**: Español (`es`)
+   - **Implementación**: Gestionada por `CookieLocaleResolver` de Spring
+
+## Sesiones HTTP
+
+El proyecto utiliza sesiones HTTP para:
+
+1. **Autenticación de usuarios**
+   - Spring Security gestiona la sesión del usuario autenticado mediante formLogin
+   - La sesión se mantiene mientras el usuario esté autenticado
+   - Se invalida al cerrar sesión
+
+2. **Almacenamiento temporal de datos de formularios**
+   - `formData_pelicula_new`: Datos del formulario de nueva película (si hay errores de validación)
+   - `formData_pelicula_edit_{id}`: Datos del formulario de edición de película (si hay errores de validación)
+   - `formData_admin_pelicula_new`: Datos del formulario de nueva película en área de administración
+   - `formData_admin_pelicula_edit_{id}`: Datos del formulario de edición en área de administración
+   - `deleteToken_{id}`: Token de seguridad para confirmación de eliminación de películas
+
+**Nota**: La API REST utiliza política de sesiones `STATELESS` (sin sesiones), mientras que la parte web utiliza sesiones HTTP estándar.
 
 # Licencia de uso
 
