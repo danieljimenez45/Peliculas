@@ -27,6 +27,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del controlador REST de Entradas (endpoints HTTP).
+ * Se mockea EntradasService; se simulan GET/POST/PUT/PATCH/DELETE y se comprueba status y cuerpo.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class EntradasRestControllerTest {
@@ -58,6 +62,7 @@ class EntradasRestControllerTest {
     @MockitoBean
     private EntradasService entradasService;
 
+    /** GET /entradas sin filtros: 200 y JSON con content (lista paginada). */
     @Test
     void getAll() {
         // Arrange
@@ -90,6 +95,7 @@ class EntradasRestControllerTest {
                     Optional.empty(), Optional.empty(), Optional.empty(), pageable);
     }
 
+    /** GET /entradas?peliculaId=X: filtro por película; servicio recibe Optional peliculaId. */
     @Test
     void getAllByPeliculaId() {
         // Arrange

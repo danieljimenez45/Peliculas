@@ -26,12 +26,18 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+/**
+ * Tests del controlador REST de Películas (endpoints HTTP).
+ * Se mockea el servicio (no la BD); se simulan peticiones GET/POST/PUT/PATCH/DELETE y se comprueba status y cuerpo.
+ */
+@SpringBootTest // Arranca el contexto completo de la aplicación
+@AutoConfigureMockMvc // Configura MockMvc para peticiones HTTP simuladas
 class PeliculasRestControllerTest {
 
+  /** Ruta base del API de películas; se usa en todas las peticiones. */
   private final String ENDPOINT = "/api/v1/peliculas";
 
+  // ========== DTOs de respuesta usados para simular lo que devuelve el servicio ==========
   private final PeliculaResponseDto peliculaResponse1 = PeliculaResponseDto.builder()
       .idPelicula(1L)
       .titulo("El Padrino")
@@ -58,12 +64,15 @@ class PeliculasRestControllerTest {
       .updatedAt(LocalDateTime.now())
       .build();
 
+  /** Cliente para simular peticiones HTTP (GET, POST, etc.) sin levantar el servidor real. */
   @Autowired
   private MockMvcTester mockMvcTester;
 
+  /** Servicio mockeado: definimos qué devuelve cada método (when/thenReturn) para aislar el controlador. */
   @MockitoBean
   private PeliculasService peliculasService;
 
+  /** GET /peliculas sin filtros: devuelve 200 y un JSON con content (lista paginada). */
   @Test
   void getAll() {
     // Arrange
@@ -95,6 +104,7 @@ class PeliculasRestControllerTest {
         .findAll(Optional.empty(), Optional.empty(), pageable);
   }
 
+  /** GET /peliculas?titulo=X: el servicio recibe el filtro título; respuesta 200 con resultados filtrados. */
   @Test
   void getAllByTitulo() {
     // Arrange
@@ -126,6 +136,7 @@ class PeliculasRestControllerTest {
         .findAll(titulo, Optional.empty(), pageable);
   }
 
+  /** GET /peliculas?genero=X: el servicio recibe el filtro género; respuesta 200. */
   @Test
   void getAllByGenero() {
     // Arrange
@@ -157,6 +168,7 @@ class PeliculasRestControllerTest {
         .findAll(Optional.empty(), genero, pageable);
   }
 
+  /** GET /peliculas?titulo=X&genero=Y: filtros combinados; el servicio recibe ambos Optional. */
   @Test
   void getAllByTituloAndGenero() {
     // Arrange
@@ -189,6 +201,7 @@ class PeliculasRestControllerTest {
   }
 
 
+  /** GET /peliculas/{id} con id válido: 200 y cuerpo JSON con la película. */
   @Test
   void getById_shouldReturnJsonWithPelicula_whenValidIdProvided() {
     // Arrange
@@ -213,6 +226,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** GET /peliculas/{id} con id inexistente: el servicio lanza excepción; respuesta 404. */
   @Test
   void getById_shouldThrowPeliculaNotFound_whenInvalidIdProvided() {
     // Arrange
@@ -236,8 +250,9 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** POST /peliculas con usuario ADMIN: body JSON válido; servicio devuelve DTO; respuesta 201 Created. */
   @Test
-  @WithMockUser(roles = "ADMIN")
+  @WithMockUser(roles = "ADMIN") // Simula usuario autenticado con rol ADMIN (requerido por @PreAuthorize)
   void create() {
     // Arrange
     String requestBody = """
@@ -286,6 +301,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** POST con body inválido (campos faltantes o incorrectos): validación falla; respuesta 400 Bad Request. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void create_whenBadRequest() {
@@ -320,6 +336,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** PUT /peliculas/{id}: body con datos de actualización; servicio devuelve DTO actualizado; 200 OK. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void update() {
@@ -364,6 +381,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** PUT /peliculas/{id} con id inexistente: servicio lanza excepción; respuesta 404. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void update_shouldThrowPeliculaNotFound_whenInvalidIdProvided() {
@@ -393,6 +411,7 @@ class PeliculasRestControllerTest {
     verify(peliculasService, only()).update(anyLong(), any(PeliculaUpdateDto.class));
   }
 
+  /** PATCH /peliculas/{id}: actualización parcial; servicio devuelve DTO; 200 OK. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void updatePartial() {
@@ -436,6 +455,7 @@ class PeliculasRestControllerTest {
     verify(peliculasService, only()).update(anyLong(), any(PeliculaUpdateDto.class));
   }
 
+  /** DELETE /peliculas/{id}: servicio borra; respuesta 204 No Content. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void delete() {
@@ -454,6 +474,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** DELETE /peliculas/{id} con id inexistente: servicio lanza excepción; respuesta 404. */
   @Test
   @WithMockUser(roles = "ADMIN")
   void delete_shouldThrowPeliculaNotFound_whenInvalidIdProvided() {
@@ -477,6 +498,7 @@ class PeliculasRestControllerTest {
 
   }
 
+  /** GET con sortBy y direction=asc: el controlador construye Pageable ordenado; respuesta 200 con content ordenado. */
   @Test
   void getAll_WithSortAscending_ShouldReturnSortedResults() {
     // Arrange
@@ -504,6 +526,7 @@ class PeliculasRestControllerTest {
         .findAll(Optional.empty(), Optional.empty(), pageable);
   }
 
+  /** GET con sortBy y direction=desc: ordenación descendente; respuesta 200. */
   @Test
   void getAll_WithSortDescending_ShouldReturnSortedResults() {
     // Arrange
@@ -531,6 +554,7 @@ class PeliculasRestControllerTest {
         .findAll(Optional.empty(), Optional.empty(), pageable);
   }
 
+  /** GET con page y size: paginación; respuesta incluye content, totalPages, totalElements, etc. */
   @Test
   void getAll_WithPagination_ShouldReturnPagedResults() {
     // Arrange

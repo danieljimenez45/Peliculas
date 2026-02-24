@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -27,6 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del controlador MVC de administración (rutas /admin/**).
+ * Se mockean PeliculasService e I18nService; se comprueban vistas (viewName) y redirecciones.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class AdminControllerTest {
@@ -72,33 +77,45 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Devuelve vista admin/peliculas/lista")
+    @DisplayName("GET /admin/peliculas - Devuelve vista admin/peliculas/lista")
     void returnsListaView() {
+      // Arrange
       var pageable = PageRequest.of(0, 4, Sort.by("idPelicula").ascending());
       var list = Collections.singletonList(PELICULA_RESPONSE);
       var page = new PageImpl<>(list, pageable, 1);
       when(peliculasService.findAll(eq(Optional.empty()), eq(Optional.empty()), any()))
           .thenReturn(page);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/lista");
-      verify(peliculasService).findAll(Optional.empty(), Optional.empty(), pageable);
+          .hasViewName("admin/peliculas/lista")
+          .model()
+          .containsKeys("page");
+
+      // Verify
+      verify(peliculasService, times(1)).findAll(Optional.empty(), Optional.empty(), pageable);
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("Sin rol ADMIN devuelve 403")
+    @DisplayName("GET /admin/peliculas - Sin rol ADMIN devuelve 403")
     void withoutAdminRole_returns403() {
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+
+      // Verify
       verify(peliculasService, never()).findAll(any(), any(), any());
     }
   }
@@ -109,22 +126,28 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Con titulo devuelve fragmento listaPeliculas")
+    @DisplayName("GET /admin/peliculas/filter - Con titulo devuelve fragmento listaPeliculas")
     void withTitulo_returnsFragment() {
+      // Arrange
       var pageable = PageRequest.of(0, 4, Sort.by("idPelicula").ascending());
       var list = Collections.singletonList(PELICULA_RESPONSE);
       var page = new PageImpl<>(list, pageable, 1);
       when(peliculasService.findAll(eq(Optional.of("Padrino")), eq(Optional.empty()), any()))
           .thenReturn(page);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/filter?titulo=Padrino")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("fragments/listaPeliculas");
-      verify(peliculasService).findAll(Optional.of("Padrino"), Optional.empty(), pageable);
+          .hasViewName("fragments/listaPeliculas");
+
+      // Verify
+      verify(peliculasService, times(1)).findAll(Optional.of("Padrino"), Optional.empty(), pageable);
     }
   }
 
@@ -134,34 +157,50 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Devuelve vista admin/peliculas/detalle")
+    @DisplayName("GET /admin/peliculas/{id} - Devuelve vista admin/peliculas/detalle")
     void returnsDetalleView() {
-      when(peliculasService.buscarPorId(1L)).thenReturn(Optional.of(PELICULA_ENTITY));
+      // Arrange
+      Long id = 1L;
+      when(peliculasService.buscarPorId(id)).thenReturn(Optional.of(PELICULA_ENTITY));
 
+      // Act
       var result = mockMvcTester.get()
-          .uri("/admin/peliculas/1")
+          .uri("/admin/peliculas/" + id)
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
-      assertThat(result)
+      // Assert
+      var mvcAssert = assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/detalle");
-      verify(peliculasService).buscarPorId(1L);
+          .hasViewName("admin/peliculas/detalle");
+      mvcAssert.model()
+          .containsKeys("pelicula")
+          .containsEntry("pelicula", PELICULA_ENTITY);
+
+      // Verify
+      verify(peliculasService, only()).buscarPorId(id);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Película no existe devuelve vista detalle con mensaje")
+    @DisplayName("GET /admin/peliculas/{id} - Película no existe devuelve vista detalle")
     void whenNotFound() {
+      // Arrange
       when(peliculasService.buscarPorId(999L)).thenReturn(Optional.empty());
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/999")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/detalle");
-      verify(peliculasService).buscarPorId(999L);
+          .hasViewName("admin/peliculas/detalle");
+
+      // Verify
+      verify(peliculasService, only()).buscarPorId(999L);
     }
   }
 
@@ -171,15 +210,18 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Devuelve vista admin/peliculas/form")
+    @DisplayName("GET /admin/peliculas/new - Devuelve vista admin/peliculas/form")
     void returnsFormView() {
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/new")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/form");
+          .hasViewName("admin/peliculas/form");
     }
   }
 
@@ -189,10 +231,12 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Datos válidos redirige a /admin/peliculas")
+    @DisplayName("POST /admin/peliculas/new - Datos válidos redirige a /admin/peliculas")
     void validData_redirectsToLista() {
+      // Arrange
       when(peliculasService.save(any())).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.post()
           .uri("/admin/peliculas/new")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -202,15 +246,18 @@ class AdminControllerTest {
           .param("director", "Director")
           .exchange();
 
-      assertThat(result)
-          .hasStatus3xxRedirection();
-      verify(peliculasService).save(any());
+      // Assert
+      assertThat(result).hasStatus3xxRedirection();
+
+      // Verify
+      verify(peliculasService, times(1)).save(any());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Datos inválidos devuelve vista form")
+    @DisplayName("POST /admin/peliculas/new - Datos inválidos devuelve vista form")
     void invalidData_returnsForm() {
+      // Act
       var result = mockMvcTester.post()
           .uri("/admin/peliculas/new")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -220,9 +267,12 @@ class AdminControllerTest {
           .param("director", "")
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/form");
+          .hasViewName("admin/peliculas/form");
+
+      // Verify
       verify(peliculasService, never()).save(any());
     }
   }
@@ -233,33 +283,43 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Película existe devuelve vista form")
+    @DisplayName("GET /admin/peliculas/{id}/edit - Película existe devuelve vista form")
     void whenExists_returnsFormView() {
+      // Arrange
       when(peliculasService.buscarPorId(1L)).thenReturn(Optional.of(PELICULA_ENTITY));
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/1/edit")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("admin/peliculas/form");
-      verify(peliculasService).buscarPorId(1L);
+          .hasViewName("admin/peliculas/form");
+
+      // Verify
+      verify(peliculasService, only()).buscarPorId(1L);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Película no existe redirige a /admin/peliculas/new")
+    @DisplayName("GET /admin/peliculas/{id}/edit - Película no existe redirige a /admin/peliculas/new")
     void whenNotFound_redirectsToNew() {
+      // Arrange
       when(peliculasService.buscarPorId(999L)).thenReturn(Optional.empty());
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/999/edit")
           .exchange();
 
-      assertThat(result)
-          .hasStatus3xxRedirection();
-      verify(peliculasService).buscarPorId(999L);
+      // Assert
+      assertThat(result).hasStatus3xxRedirection();
+
+      // Verify
+      verify(peliculasService, only()).buscarPorId(999L);
     }
   }
 
@@ -269,10 +329,12 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Datos válidos redirige a detalle")
+    @DisplayName("POST /admin/peliculas/{id}/edit - Datos válidos redirige a detalle")
     void validData_redirectsToDetalle() {
+      // Arrange
       when(peliculasService.update(eq(1L), any())).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.post()
           .uri("/admin/peliculas/1/edit")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -282,9 +344,11 @@ class AdminControllerTest {
           .param("director", "Director")
           .exchange();
 
-      assertThat(result)
-          .hasStatus3xxRedirection();
-      verify(peliculasService).update(eq(1L), any());
+      // Assert
+      assertThat(result).hasStatus3xxRedirection();
+
+      // Verify
+      verify(peliculasService, times(1)).update(eq(1L), any());
     }
   }
 
@@ -294,35 +358,46 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Devuelve fragmento deleteModal con token en sesión")
+    @DisplayName("GET /admin/peliculas/{id}/delete/confirm - Devuelve fragmento deleteModal")
     void returnsDeleteModal() {
+      // Arrange
       when(peliculasService.buscarPorId(1L)).thenReturn(Optional.of(PELICULA_ENTITY));
       when(i18nService.getMessage(eq("peliculas.borrar.mensaje"), any())).thenReturn("¿Borrar?");
       when(i18nService.getMessage(eq("peliculas.borrar.titulo"))).thenReturn("Confirmar borrado");
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/1/delete/confirm")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("fragments/deleteModal");
-      verify(peliculasService).buscarPorId(1L);
+          .hasViewName("fragments/deleteModal");
+
+      // Verify
+      verify(peliculasService, times(1)).buscarPorId(1L);
       verify(i18nService).getMessage(eq("peliculas.borrar.mensaje"), any());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Película no existe redirige")
+    @DisplayName("GET /admin/peliculas/{id}/delete/confirm - Película no existe redirige")
     void whenNotFound_redirects() {
+      // Arrange
       when(peliculasService.buscarPorId(999L)).thenReturn(Optional.empty());
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/admin/peliculas/999/delete/confirm")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
-      verify(peliculasService).buscarPorId(999L);
+
+      // Verify
+      verify(peliculasService, only()).buscarPorId(999L);
     }
   }
 
@@ -332,16 +407,19 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("Sin token correcto redirige con error")
+    @DisplayName("POST /admin/peliculas/{id}/delete - Sin token correcto redirige con error")
     void withoutValidToken_redirectsWithError() {
+      // Act
       var result = mockMvcTester.post()
           .uri("/admin/peliculas/1/delete")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
           .param("deleteToken", "invalid-token")
           .exchange();
 
-      assertThat(result)
-          .hasStatus3xxRedirection();
+      // Assert
+      assertThat(result).hasStatus3xxRedirection();
+
+      // Verify
       verify(peliculasService, never()).deleteById(anyLong());
     }
   }

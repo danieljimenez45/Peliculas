@@ -18,10 +18,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests del repositorio de Entradas (capa de acceso a datos).
+ * Usa DataJpaTest + TestEntityManager; persiste Película y Entradas en setUp.
+ */
 @Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 class EntradasRepositoryTest {
 
+  // ========== Datos de prueba (película y entradas asociadas) ==========
   private final Pelicula pelicula = Pelicula.builder()
       .titulo("El Padrino")
       .genero("Drama")
@@ -54,6 +59,7 @@ class EntradasRepositoryTest {
   @Autowired
   private TestEntityManager entityManager;
 
+  /** Persiste una película y dos entradas antes de cada test para tener datos conocidos. */
   @BeforeEach
   void setUp() {
     entityManager.persist(pelicula);
@@ -62,6 +68,7 @@ class EntradasRepositoryTest {
     entityManager.flush();
   }
 
+  /** Comprueba que findAll() devuelve todas las entradas insertadas en setUp. */
   @Test
   void findAll() {
     // Act
@@ -74,6 +81,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** Comprueba que findById() devuelve la entrada cuando el id existe. */
   @Test
   void findById() {
     // Act
@@ -86,6 +94,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** findById con id inexistente devuelve Optional vacío. */
   @Test
   void findByIdNotFound() {
     // Act
@@ -95,6 +104,7 @@ class EntradasRepositoryTest {
     assertNull(entrada);
   }
 
+  /** save con entrada nueva la inserta y devuelve entidad con id generado. */
   @Test
   void save() {
     // Act
@@ -114,6 +124,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** save con entrada existente (con id) actualiza el registro. */
   @Test
   void update() {
     // Act
@@ -136,6 +147,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** deleteById elimina la entrada y ya no existe en findAll. */
   @Test
   void delete() {
     // Act
@@ -147,6 +159,7 @@ class EntradasRepositoryTest {
     assertNull(entradaBorrada);
   }
 
+  /** findAll(Pageable) devuelve una página con el tamaño indicado. */
   @Test
   void findAll_WithPagination_ShouldReturnPagedResults() {
     // Arrange
@@ -164,6 +177,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** findAll(Specification, Pageable) filtra por criterio (ej. por película) y devuelve página. */
   @Test
   void findAll_WithSpecificationAndPagination_ShouldReturnFilteredPagedResults() {
     // Arrange
@@ -183,6 +197,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** findAll con Sort ascendente ordena los resultados correctamente. */
   @Test
   void findAll_WithSortAscending_ShouldReturnSortedResults() {
     // Arrange
@@ -200,6 +215,7 @@ class EntradasRepositoryTest {
     );
   }
 
+  /** findAll con Sort descendente ordena los resultados correctamente. */
   @Test
   void findAll_WithSortDescending_ShouldReturnSortedResults() {
     // Arrange

@@ -1,6 +1,7 @@
 package es.danieljr.peliculas.websockets.notifications.dto;
 
-public record PeliculaNotificationResponse(
+public record
+PeliculaNotificationResponse(
         Long idPelicula,
         String titulo,
         String genero,

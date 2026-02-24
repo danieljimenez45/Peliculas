@@ -26,24 +26,26 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del servicio de autenticación (signUp, signIn).
+ * Se mockean AuthUsersRepository, PasswordEncoder, JwtService y AuthenticationManager.
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceImplTest {
 
   @Mock
   private AuthUsersRepository authUsersRepository;
-
   @Mock
   private PasswordEncoder passwordEncoder;
-
   @Mock
   private JwtService jwtService;
-
   @Mock
   private AuthenticationManager authenticationManager;
 
   @InjectMocks
   private AuthenticationServiceImpl authenticationService;
 
+  /** signUp con contraseñas coincidentes: se guarda usuario, se genera JWT y se devuelve en JwtAuthResponse. */
   @Test
   public void testSignUp_WhenPasswordsMatch_ShouldReturnToken() {
     // Datos de prueba
@@ -92,6 +94,7 @@ class AuthenticationServiceImplTest {
     assertThrows(AuthDifferentPasswords.class, () -> authenticationService.signUp(request));
   }
 
+  /** signUp con username o email ya existente: repositorio lanza DataIntegrityViolation → AuthExistingUsernameOrEmail. */
   @Test
   public void testSignUp_WhenUsernameOrEmailAlreadyExist_ShouldThrowException() {
     // Datos de prueba

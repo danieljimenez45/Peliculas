@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests del mapper de Entradas (conversión Entrada ↔ DTOs).
+ * No usa Spring; se prueba el mapper de forma aislada.
+ */
 class EntradaMapperTest {
   private final Pelicula pelicula = Pelicula.builder()
       .idPelicula(1L)
@@ -20,9 +24,9 @@ class EntradaMapperTest {
       .director("Francis Ford Coppola")
       .build();
 
-  // Inyectamos el mapper
   private final EntradaMapper entradaMapper = new EntradaMapper();
 
+  /** toEntrada(CreateDto): crea entidad con datos del DTO (sin id). */
   @Test
   void toEntrada_create() {
     // Arrange
@@ -43,6 +47,7 @@ class EntradaMapperTest {
     );
   }
 
+  /** toEntrada(UpdateDto, entidad): actualiza solo los campos del DTO manteniendo el id. */
   @Test
   void toEntrada_update() {
     // Arrange
@@ -73,6 +78,7 @@ class EntradaMapperTest {
     );
   }
 
+  /** toEntradaResponseDto(entidad): devuelve DTO con los campos de la entidad. */
   @Test
   void toEntradaResponseDto() {
     // Arrange

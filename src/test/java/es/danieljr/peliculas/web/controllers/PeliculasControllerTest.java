@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,6 +29,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del controlador MVC de películas (rutas /peliculas: listado, detalle, formularios new/edit, delete).
+ * Se mockea PeliculasService; se comprueban vistas, redirecciones y que el modelo contiene los datos correctos.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class PeliculasControllerTest {
@@ -57,32 +62,50 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Devuelve vista peliculas/detalle cuando existe")
+    @DisplayName("GET /peliculas/{id} - Devuelve vista peliculas/detalle cuando existe")
     void whenExists_returnsDetalleView() {
-      when(peliculasService.findById(1L)).thenReturn(PELICULA_RESPONSE);
+      // Arrange
+      Long id = 1L;
+      when(peliculasService.findById(id)).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.get()
-          .uri("/peliculas/1")
+          .uri("/peliculas/" + id)
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
-      assertThat(result)
+      // Assert
+      var mvcAssert = assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("peliculas/detalle");
-      verify(peliculasService).findById(1L);
+          .hasViewName("peliculas/detalle");
+      mvcAssert.model()
+          .containsKeys("pelicula")
+          .containsEntry("pelicula", PELICULA_RESPONSE);
+      mvcAssert.bodyText()
+          .contains(PELICULA_RESPONSE.getTitulo());
+
+      // Verify
+      verify(peliculasService, only()).findById(id);
     }
 
     @Test
     @WithMockUser
-    @DisplayName("Cuando findById devuelve null puede devolver vista o error")
+    @DisplayName("GET /peliculas/{id} - Cuando findById devuelve null devuelve vista detalle")
     void whenNotFound() {
+      // Arrange
       when(peliculasService.findById(999L)).thenReturn(null);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/999")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
-      assertThat(result).hasStatusOk().viewName().isEqualTo("peliculas/detalle");
-      verify(peliculasService).findById(999L);
+      // Assert
+      assertThat(result).hasStatusOk().hasViewName("peliculas/detalle");
+
+      // Verify
+      verify(peliculasService, only()).findById(999L);
     }
   }
 
@@ -92,40 +115,55 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /peliculas devuelve vista peliculas/lista")
+    @DisplayName("GET /peliculas - Devuelve vista peliculas/lista con página de películas")
     void returnsListaView() {
+      // Arrange
       var pageable = PageRequest.of(0, 4, Sort.by("idPelicula").ascending());
       var list = Collections.singletonList(PELICULA_RESPONSE);
       var page = new PageImpl<>(list, pageable, 1);
       when(peliculasService.findAll(eq(Optional.empty()), eq(Optional.empty()), any()))
           .thenReturn(page);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("peliculas/lista");
-      verify(peliculasService).findAll(Optional.empty(), Optional.empty(), pageable);
+          .hasViewName("peliculas/lista")
+          .model()
+          .containsKeys("page")
+          .hasEntrySatisfying("page", pageObj -> assertThat(pageObj).isNotNull());
+
+      // Verify
+      verify(peliculasService, times(1)).findAll(Optional.empty(), Optional.empty(), pageable);
     }
 
     @Test
     @WithMockUser
-    @DisplayName("GET /peliculas/lista con paginación")
+    @DisplayName("GET /peliculas/lista - Con paginación page y size")
     void withPagination() {
+      // Arrange
       var pageable = PageRequest.of(1, 10, Sort.by("idPelicula").ascending());
       var list = Collections.singletonList(PELICULA_RESPONSE);
       var page = new PageImpl<>(list, pageable, 25);
       when(peliculasService.findAll(eq(Optional.empty()), eq(Optional.empty()), any()))
           .thenReturn(page);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/lista?page=1&size=10")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
-      assertThat(result).hasStatusOk().viewName().isEqualTo("peliculas/lista");
-      verify(peliculasService).findAll(Optional.empty(), Optional.empty(), pageable);
+      // Assert
+      assertThat(result).hasStatusOk().hasViewName("peliculas/lista");
+
+      // Verify
+      verify(peliculasService, times(1)).findAll(Optional.empty(), Optional.empty(), pageable);
     }
   }
 
@@ -135,15 +173,20 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Devuelve vista form para nueva película")
+    @DisplayName("GET /peliculas/new - Devuelve vista form para nueva película")
     void returnsFormView() {
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/new")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("/peliculas/form");
+          .hasViewName("/peliculas/form");
+
+      // Verify
       verify(peliculasService, never()).save(any());
     }
   }
@@ -154,10 +197,12 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Datos válidos redirige a /peliculas/lista")
+    @DisplayName("POST /peliculas/new - Datos válidos redirige a /peliculas/lista")
     void validData_redirectsToLista() {
+      // Arrange
       when(peliculasService.save(any(PeliculaCreateDto.class))).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.post()
           .uri("/peliculas/new")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -167,14 +212,18 @@ class PeliculasControllerTest {
           .param("director", "Director")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
-      verify(peliculasService).save(any(PeliculaCreateDto.class));
+
+      // Verify
+      verify(peliculasService, times(1)).save(any(PeliculaCreateDto.class));
     }
 
     @Test
     @WithMockUser
-    @DisplayName("Datos inválidos devuelve vista form")
+    @DisplayName("POST /peliculas/new - Datos inválidos devuelve vista form")
     void invalidData_returnsForm() {
+      // Act
       var result = mockMvcTester.post()
           .uri("/peliculas/new")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -184,9 +233,12 @@ class PeliculasControllerTest {
           .param("director", "")
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("/peliculas/form");
+          .hasViewName("/peliculas/form");
+
+      // Verify
       verify(peliculasService, never()).save(any(PeliculaCreateDto.class));
     }
   }
@@ -197,32 +249,43 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Película existe devuelve vista form en modo edición")
+    @DisplayName("GET /peliculas/{id}/edit - Película existe devuelve vista form en modo edición")
     void whenExists_returnsFormView() {
+      // Arrange
       when(peliculasService.findById(1L)).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/1/edit")
+          .contentType(MediaType.TEXT_HTML)
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("peliculas/form");
-      verify(peliculasService).findById(1L);
+          .hasViewName("peliculas/form");
+
+      // Verify
+      verify(peliculasService, only()).findById(1L);
     }
 
     @Test
     @WithMockUser
-    @DisplayName("Película no existe redirige a /peliculas/new")
+    @DisplayName("GET /peliculas/{id}/edit - Película no existe redirige a /peliculas/new")
     void whenNotFound_redirectsToNew() {
+      // Arrange
       when(peliculasService.findById(999L)).thenReturn(null);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/999/edit")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
-      verify(peliculasService).findById(999L);
+
+      // Verify
+      verify(peliculasService, only()).findById(999L);
     }
   }
 
@@ -232,10 +295,12 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Datos válidos redirige a detalle")
+    @DisplayName("POST /peliculas/{id}/edit - Datos válidos redirige a detalle")
     void validData_redirectsToDetalle() {
+      // Arrange
       when(peliculasService.update(eq(1L), any(PeliculaUpdateDto.class))).thenReturn(PELICULA_RESPONSE);
 
+      // Act
       var result = mockMvcTester.post()
           .uri("/peliculas/1/edit")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -245,14 +310,18 @@ class PeliculasControllerTest {
           .param("director", "Director")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
-      verify(peliculasService).update(eq(1L), any(PeliculaUpdateDto.class));
+
+      // Verify
+      verify(peliculasService, times(1)).update(eq(1L), any(PeliculaUpdateDto.class));
     }
 
     @Test
     @WithMockUser
-    @DisplayName("Datos inválidos devuelve vista form")
+    @DisplayName("POST /peliculas/{id}/edit - Datos inválidos devuelve vista form")
     void invalidData_returnsForm() {
+      // Act
       var result = mockMvcTester.post()
           .uri("/peliculas/1/edit")
           .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -262,9 +331,12 @@ class PeliculasControllerTest {
           .param("director", "")
           .exchange();
 
+      // Assert
       assertThat(result)
           .hasStatusOk()
-          .viewName().isEqualTo("/peliculas/form");
+          .hasViewName("/peliculas/form");
+
+      // Verify
       verify(peliculasService, never()).update(anyLong(), any(PeliculaUpdateDto.class));
     }
   }
@@ -275,16 +347,21 @@ class PeliculasControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Borrado redirige a /peliculas/lista")
+    @DisplayName("GET /peliculas/{id}/delete - Borrado redirige a /peliculas/lista")
     void redirectsToLista() {
+      // Arrange
       doNothing().when(peliculasService).deleteById(1L);
 
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/1/delete")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
-      verify(peliculasService).deleteById(1L);
+
+      // Verify
+      verify(peliculasService, only()).deleteById(1L);
     }
   }
 
@@ -293,22 +370,26 @@ class PeliculasControllerTest {
   class Unauthenticated {
 
     @Test
-    @DisplayName("GET /peliculas requiere autenticación")
+    @DisplayName("GET /peliculas - Requiere autenticación")
     void getLista_requiresAuth() {
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
     }
 
     @Test
-    @DisplayName("GET /peliculas/new requiere autenticación")
+    @DisplayName("GET /peliculas/new - Requiere autenticación")
     void getNew_requiresAuth() {
+      // Act
       var result = mockMvcTester.get()
           .uri("/peliculas/new")
           .exchange();
 
+      // Assert
       assertThat(result).hasStatus3xxRedirection();
     }
   }

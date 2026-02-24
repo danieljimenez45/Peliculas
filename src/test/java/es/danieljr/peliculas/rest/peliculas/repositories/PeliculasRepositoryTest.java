@@ -16,10 +16,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@DataJpaTest
+/**
+ * Tests del repositorio de Películas (capa de acceso a datos).
+ * Usa una BD H2 en memoria; no se levanta el servidor ni el resto de la aplicación.
+ */
+@Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD) // Ejecuta reset.sql antes de cada test para estado limpio
+@DataJpaTest // Arranca solo JPA + repositorios; configura BD embebida
 class PeliculasRepositoryTest {
 
+  // ========== Datos de prueba (entidades que se persisten en setUp) ==========
   private final Pelicula pelicula1 = Pelicula.builder()
       .titulo("El Padrino")
       .genero("Drama")
@@ -44,11 +49,14 @@ class PeliculasRepositoryTest {
       .updatedAt(LocalDateTime.now())
       .build();
 
+  /** Repositorio a probar; inyectado por Spring en el contexto DataJpaTest. */
   @Autowired
   private PeliculasRepository repositorio;
+  /** Permite persistir entidades en el test sin usar el repositorio (útil para preparar datos). */
   @Autowired
   private TestEntityManager entityManager;
 
+  /** Antes de cada test: persiste las dos películas de prueba en la BD para tener datos conocidos. */
   @BeforeEach
   void setUp() {
     entityManager.persist(pelicula1);
@@ -56,6 +64,7 @@ class PeliculasRepositoryTest {
     entityManager.flush();
   }
 
+  /** Comprueba que findAll() devuelve todas las películas (las 2 insertadas en setUp). */
   @Test
   void findAll() {
     // Act
@@ -68,6 +77,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findById con un id existente (1L) devuelve un Optional con la película. */
   @Test
   void findById_existingId_returnsOptionalWithPelicula() {
     // Act
@@ -82,6 +92,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findById con un id que no existe (4L) devuelve Optional vacío. */
   @Test
   void findById_nonExistingId_returnsEmptyOptional() {
     // Act
@@ -95,6 +106,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que existsById devuelve true cuando el id existe. */
   @Test
   void existsById_existingId_returnsTrue() {
     // Act
@@ -105,6 +117,7 @@ class PeliculasRepositoryTest {
     assertTrue(exists);
   }
 
+  /** Comprueba que existsById devuelve false cuando el id no existe. */
   @Test
   void existsById_nonExistingId_returnsFalse() {
     // Act
@@ -115,6 +128,7 @@ class PeliculasRepositoryTest {
     assertFalse(exists);
   }
 
+  /** Comprueba que save() con una película nueva (sin id) la inserta y el total de registros aumenta. */
   @Test
   void save_notExists() {
     // Arrange
@@ -142,6 +156,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que save() con una película que ya tiene id actualiza el registro existente. */
   @Test
   void save_butExists() {
     // Arrange
@@ -171,6 +186,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que deleteById() elimina la película y el número de registros disminuye. */
   @Test
   void deleteById_existingId() {
     // Act
@@ -185,6 +201,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findAll(Pageable) devuelve una página con el tamaño indicado (1 elemento). */
   @Test
   void findAll_WithPagination_ShouldReturnPagedResults() {
     // Arrange
@@ -202,6 +219,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findAll(Specification, Pageable) filtra por criterio (título contiene "padrino"). */
   @Test
   void findAll_WithSpecificationAndPagination_ShouldReturnFilteredPagedResults() {
     // Arrange
@@ -221,6 +239,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findAll con Sort ascendente por título ordena correctamente los resultados. */
   @Test
   void findAll_WithSortAscending_ShouldReturnSortedResults() {
     // Arrange
@@ -238,6 +257,7 @@ class PeliculasRepositoryTest {
     );
   }
 
+  /** Comprueba que findAll con Sort descendente por título ordena correctamente los resultados. */
   @Test
   void findAll_WithSortDescending_ShouldReturnSortedResults() {
     // Arrange

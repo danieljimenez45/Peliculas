@@ -30,8 +30,13 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+/**
+ * Tests del servicio de Películas (lógica de negocio).
+ * Se mockean el repositorio, WebSocket y mappers para aislar solo la lógica del servicio.
+ */
+@ExtendWith(MockitoExtension.class) // Habilita Mockito (crea mocks e inyecta con @InjectMocks)
 class PeliculasServiceImplTest {
+  // ========== Datos de prueba (entidades y DTOs usados en los tests) ==========
   private final Pelicula pelicula1 = Pelicula.builder()
       .idPelicula(1L)
       .titulo("El Padrino")
@@ -60,10 +65,11 @@ class PeliculasServiceImplTest {
 
   private PeliculaResponseDto peliculaResponse1;
 
+  // ========== Mocks: dependencias del servicio (simuladas, no reales) ==========
   @Mock
   private PeliculasRepository peliculasRepository;
   @Spy
-  private PeliculaMapper peliculaMapper;
+  private PeliculaMapper peliculaMapper; // Spy = instancia real, permite verificar llamadas
   @Mock
   private WebSocketConfig webSocketConfig;
   @Mock
@@ -74,16 +80,18 @@ class PeliculasServiceImplTest {
   private WebSocketHandler webSocketService;
 
   @InjectMocks
-  private PeliculasServiceImpl peliculasService;
+  private PeliculasServiceImpl peliculasService; // Servicio a probar; recibe los mocks anteriores
   @Captor
-  private ArgumentCaptor<Pelicula> peliculaCaptor;
+  private ArgumentCaptor<Pelicula> peliculaCaptor; // Para capturar el argumento pasado a save()
 
+  /** Inicializa el DTO de respuesta y asigna el mock de WebSocket al servicio (evita NPE en onChange). */
   @BeforeEach
   void setUp() {
     peliculaResponse1 = peliculaMapper.toPeliculaResponseDto(pelicula1);
     peliculasService.setWebSocketService(webSocketService);
   }
 
+  /** findAll sin filtros: el repositorio devuelve una página; el servicio la mapea a DTOs. */
   @Test
   void findAll_ShouldReturnAllPeliculas_WhenNoParametersProvided() {
     // Arrange
@@ -107,6 +115,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findAll con filtro título: se llama al repositorio con Specification que incluye el título. */
   @Test
   void findAll_ShouldReturnPeliculasByTitulo_WhenTituloParameterProvided() {
     // Arrange
@@ -131,6 +140,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findAll con filtro género: se llama al repositorio con Specification que incluye el género. */
   @Test
   void findAll_ShouldReturnPeliculasByGenero_WhenGeneroParameterProvided() {
     // Arrange
@@ -155,6 +165,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findAll con título y género: Specification combina ambos criterios. */
   @Test
   void findAll_ShouldReturnPeliculasByTituloAndGenero_WhenBothParametersProvided() {
     // Arrange
@@ -179,6 +190,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findAll con orden ascendente: el Pageable incluye Sort; el resultado está ordenado. */
   @Test
   void findAll_ShouldReturnPeliculasOrderedAscending_WhenSortByAscending() {
     // Arrange
@@ -202,6 +214,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findAll con orden descendente: el Pageable incluye Sort descendente. */
   @Test
   void findAll_ShouldReturnPeliculasOrderedDescending_WhenSortByDescending() {
     // Arrange
@@ -225,6 +238,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findById con id existente: el repositorio devuelve la entidad; el servicio la convierte a DTO. */
   @Test
   void findById_ShouldReturnPelicula_WhenValidIdProvided() {
     // Arrange
@@ -242,6 +256,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, only()).findById(id);
   }
 
+  /** findById con id inexistente: el repositorio devuelve empty; el servicio lanza PeliculaNotFoundException. */
   @Test
   void findById_ShouldThrowPeliculaNotFound_WhenInvalidIdProvided() {
     // Arrange
@@ -256,6 +271,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository).findById(id);
   }
 
+  /** save: mapper convierte DTO a entidad, repositorio guarda, se llama onChange (WebSocket) y se devuelve DTO. */
   @Test
   void save_ShouldReturnSavedPelicula_WhenValidPeliculaCreateDtoProvided() throws IOException {
     // Arrange
@@ -299,6 +315,7 @@ class PeliculasServiceImplTest {
     assertEquals(expectedPelicula.getTitulo(), peliculaCaptured.getTitulo());
   }
 
+  /** update: se busca la entidad, se actualiza con el mapper, se guarda y se notifica por WebSocket. */
   @Test
   void update_ShouldReturnUpdatedPelicula_WhenValidIdAndPeliculaUpdateDtoProvided() throws IOException {
     // Arrange
@@ -331,6 +348,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository).save(any(Pelicula.class));
   }
 
+  /** update con id inexistente: findById devuelve empty y se lanza PeliculaNotFoundException. */
   @Test
   void update_ShouldThrowPeliculaNotFound_WhenInvalidIdProvided() {
     // Arrange
@@ -351,6 +369,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, never()).save(any(Pelicula.class));
   }
 
+  /** deleteById: se busca la entidad, se borra en el repositorio y se notifica DELETE por WebSocket. */
   @Test
   void deleteById_ShouldDeletePelicula_WhenValidIdProvided() throws IOException {
     // Arrange
@@ -369,6 +388,7 @@ class PeliculasServiceImplTest {
     verify(webSocketService, atLeastOnce()).sendMessage(anyString());
   }
 
+  /** deleteById con id inexistente: se lanza PeliculaNotFoundException sin llamar a delete. */
   @Test
   void deleteById_ShouldThrowPeliculaNotFound_WhenInvalidIdProvided() {
     // Arrange
@@ -384,6 +404,7 @@ class PeliculasServiceImplTest {
     verify(peliculasRepository, never()).deleteById(id);
   }
 
+  /** onChange: el servicio construye la notificación, la serializa a JSON y llama a sendMessage del WebSocket. */
   @Test
   void onChange_ShouldSendMessage_WhenValidDataProvided() throws IOException {
     // Arrange

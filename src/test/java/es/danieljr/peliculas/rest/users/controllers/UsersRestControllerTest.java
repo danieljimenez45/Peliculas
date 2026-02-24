@@ -28,12 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
-// Podemos usar el contexto de Spring para autenticar o usar un usuario mockeado:
-// @WithMockUser(username = "pepe", roles = {"USER"})
-// @WithUserDetails(value = "admin", userDetailsServiceBeanName = "userDetailsService")
-// Porque está dado de alta en la base de datos data.sql
-// @WithUserDetails(value = "admin")
-// En el ejemplo siguiente, se va a ejecutar usando el usuario admin con roles de usuario y admin
+/**
+ * Tests del controlador REST de Usuarios (endpoints HTTP).
+ * Se mockean UsersService y EntradasService. Por defecto los tests usan @WithMockUser(admin).
+ */
+// Opciones de usuario en tests: @WithMockUser(username, roles), @WithUserDetails("admin"), @WithAnonymousUser
 @WithMockUser(username = "admin", password = "admin", roles = {"ADMIN", "USER"})
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -65,6 +64,7 @@ class UsersRestControllerTest {
   @MockitoBean
   private EntradasService entradasService;
 
+  /** Sin autenticación (@WithAnonymousUser): GET al listado devuelve 403 Forbidden. */
   @Test
   @WithAnonymousUser
   void NotAuthenticated() {
@@ -76,6 +76,7 @@ class UsersRestControllerTest {
     assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
   }
 
+  /** GET /users: servicio devuelve página de usuarios; respuesta 200 con JSON paginado. */
   @Test
   void findAll() {
     var userResponses = List.of(userResponse);

@@ -20,6 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del controlador REST de autenticación (login, registro).
+ * Se mockea AuthenticationService; se prueban POST /signup y POST /signin y casos de error.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthenticationRestControllerTest {
@@ -32,6 +36,7 @@ class AuthenticationRestControllerTest {
   @MockitoBean
   private AuthenticationService authenticationService;
 
+  /** POST /auth/signup con datos válidos: servicio devuelve JWT; respuesta 200 con token. */
   @Test
   void signUp() {
     String requestBody = """
@@ -67,6 +72,7 @@ class AuthenticationRestControllerTest {
     verify(authenticationService, times(1)).signUp(any(UserSignUpRequest.class));
   }
 
+  /** POST /signup con contraseñas distintas: servicio lanza AuthDifferentPasswords; respuesta 400. */
   @Test
   void signUp_WhenPasswordsDoNotMatch_ShouldThrowException() {
     String requestBody = """

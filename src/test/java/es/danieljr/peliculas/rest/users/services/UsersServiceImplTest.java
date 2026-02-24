@@ -31,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del servicio de Usuarios (lógica de negocio).
+ * Se mockean UsersRepository, EntradasRepository y se usa Spy del UsersMapper.
+ */
 @ExtendWith(MockitoExtension.class)
 class UsersServiceImplTest {
   private final UserRequest userRequest = UserRequest.builder()
@@ -47,6 +51,7 @@ class UsersServiceImplTest {
   @InjectMocks
   private UsersServiceImpl usersService;
 
+  /** findAll sin filtros: repositorio devuelve página; servicio la mapea a UserResponse. */
   @Test
   public void testFindAll_NoFilters_ReturnsPageOfUsers() {
     // Arrange
@@ -68,6 +73,7 @@ class UsersServiceImplTest {
     verify(usersRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
+  /** findById: repositorio devuelve usuario; entradasRepository devuelve entradas; se construye UserInfoResponse. */
   @Test
   public void testFindById() {
     // Arrange

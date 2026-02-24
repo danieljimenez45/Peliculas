@@ -9,11 +9,16 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests del mapper de Películas (conversión entre entidad y DTOs).
+ * No usa Spring ni mocks: se prueba el mapper de forma aislada.
+ */
 class PeliculaMapperTest {
 
-  // Inyectamos el mapper
+  /** Mapper a probar; instancia real para verificar que los campos se copian bien. */
   private final PeliculaMapper peliculaMapper = new PeliculaMapper();
 
+  /** Comprueba que toPelicula(CreateDto) crea una entidad con los datos del DTO (sin id). */
   @Test
   void toPelicula_create() {
     // Arrange
@@ -41,6 +46,7 @@ class PeliculaMapperTest {
     );
   }
 
+  /** Comprueba que toPelicula(UpdateDto, entidad) actualiza solo los campos del DTO y mantiene el id. */
   @Test
   void toPelicula_update() {
     // Arrange
@@ -74,6 +80,7 @@ class PeliculaMapperTest {
     );
   }
 
+  /** Comprueba que toPeliculaResponseDto(entidad) devuelve un DTO con todos los campos de la entidad. */
   @Test
   void toPeliculaResponseDto() {
     // Arrange

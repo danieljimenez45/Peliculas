@@ -36,8 +36,13 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests del servicio de Entradas (lógica de negocio).
+ * Se mockean repositorios (Entradas, Películas, Usuarios), WebSocket y mappers.
+ */
 @ExtendWith(MockitoExtension.class)
 class EntradasServiceImplTest {
+  // ========== Datos de prueba ==========
   private final Pelicula pelicula = Pelicula.builder()
       .idPelicula(1L)
       .titulo("El Padrino")
@@ -75,6 +80,7 @@ class EntradasServiceImplTest {
       .password("password")
       .build();
 
+  // ========== Mocks (repositorios, mappers, WebSocket) ==========
   @Mock
   private EntradasRepository entradasRepository;
   @Mock
@@ -97,6 +103,7 @@ class EntradasServiceImplTest {
   @Captor
   private ArgumentCaptor<Entrada> entradaCaptor;
 
+  /** Los tests siguen patrón Arrange (when/thenReturn) → Act (llamar al servicio) → Assert → Verify. */
   @Test
   void findAll_ShouldReturnAllEntradas_WhenNoParametersProvided() {
     // Arrange
